@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>WRSpace by DE STC</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,400;0,700;1,400&family=Prompt:wght@400;700&family=Kanit:wght@400;700&family=Noto+Sans+Thai:wght@400;700&display=swap">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sarabun',sans-serif;height:100vh;display:flex;flex-direction:column;background:#eef0f4;color:#222;overflow:hidden}
+button{font-family:inherit;cursor:pointer}
+#topbar{height:52px;display:flex;align-items:center;gap:8px;padding:0 14px;background:linear-gradient(90deg,#00c4cc,#7d2ae8);color:#fff;z-index:30}
+#topbar .logo{font-weight:700;font-size:18px;margin-right:10px}
+#topbar button,#topbar .btn{background:rgba(255,255,255,.15);color:#fff;border:0;padding:7px 12px;border-radius:6px;font-size:14px;cursor:pointer;white-space:nowrap}
+#topbar button:hover,#topbar .btn:hover{background:rgba(255,255,255,.3)}
+#topbar .primary{background:#fff;color:#7d2ae8;font-weight:700}
+#docTitle{background:transparent;border:1px solid transparent;color:#fff;font:inherit;font-size:15px;padding:5px 8px;border-radius:6px;width:220px}
+#docTitle:hover,#docTitle:focus{border-color:rgba(255,255,255,.6);outline:0}
+.spacer{flex:1}
+.dropdown{position:relative}
+.dropdown .menu{display:none;position:absolute;right:0;top:110%;background:#fff;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.2);min-width:190px;z-index:50;overflow:hidden;color:#222}
+.dropdown.open .menu{display:block}
+.dropdown .menu button{display:block;width:100%;text-align:left;background:#fff!important;color:#222!important;border-radius:0!important;padding:10px 14px!important}
+.dropdown .menu button:hover{background:#f1ecfd!important}
+.dropdown .menu button small{float:right;color:#999;margin-left:12px}
+#sizeDD .menu{min-width:240px}
+.custom-size{border-top:1px solid #eee;padding:10px 14px 12px}
+.custom-size .cs-title{font-size:13px;color:#666;margin-bottom:6px}
+.custom-size .cs-row{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.custom-size input{width:76px;padding:5px;border:1px solid #ccc;border-radius:5px;font-family:inherit}
+#sizeDD .menu .cs-swap{width:auto!important;display:inline-block!important;padding:4px 8px!important;border:1px solid #ccc!important;border-radius:5px!important}
+#sizeDD .menu .cs-apply{background:#7d2ae8!important;color:#fff!important;border-radius:6px!important;text-align:center!important;padding:7px!important}
+#toolbar{height:46px;display:flex;align-items:center;gap:4px;padding:0 12px;background:#fff;border-bottom:1px solid #ddd;overflow-x:auto;z-index:10}
+#toolbar button{border:0;background:transparent;padding:6px 10px;border-radius:6px;font-size:15px;white-space:nowrap}
+#toolbar button:hover{background:#f0f0f5}
+#toolbar button.on{background:#ede4fd;color:#7d2ae8;font-weight:700}
+#toolbar input[type=color]{width:30px;height:28px;border:1px solid #ccc;border-radius:5px;padding:0;background:#fff;cursor:pointer}
+#toolbar input[type=number]{width:52px;padding:4px;border:1px solid #ccc;border-radius:5px;font-family:inherit}
+#toolbar .sep{width:1px;height:24px;background:#ddd;margin:0 6px}
+#zoomLabel{font-size:13px;min-width:46px;text-align:center}
+main{flex:1;display:flex;min-height:0}
+#slides{width:190px;background:#fff;border-right:1px solid #ddd;overflow-y:auto;padding:12px;transition:width .2s,padding .2s;flex-shrink:0}
+#slides.hidden{width:0;padding:0;overflow:hidden;border:0}
+.thumb{position:relative;margin-bottom:12px;cursor:pointer}
+.thumb img{width:100%;display:block;border:2px solid #ddd;border-radius:6px;background:#fff}
+.thumb.active img{border-color:#7d2ae8}
+.thumb .num{position:absolute;left:-4px;top:-6px;background:#7d2ae8;color:#fff;font-size:11px;border-radius:10px;padding:0 6px}
+.thumb .acts{position:absolute;right:4px;top:4px;display:none;gap:2px}
+.thumb:hover .acts{display:flex}
+.thumb .acts button{border:0;background:rgba(0,0,0,.6);color:#fff;font-size:11px;border-radius:4px;width:22px;height:22px}
+#addSlide{width:100%;padding:10px;border:2px dashed #c9b6f5;background:#faf7ff;color:#7d2ae8;border-radius:6px;font-weight:700}
+#stage{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:30px;position:relative}
+#canvasWrap{box-shadow:0 4px 20px rgba(0,0,0,.15);background:#fff;margin:auto}
+#props{width:270px;background:#fff;border-left:1px solid #ddd;overflow-y:auto;padding:14px;transition:width .2s,padding .2s;flex-shrink:0}
+#props.hidden{width:0;padding:0;overflow:hidden;border:0}
+#props h3{font-size:14px;margin:6px 0 10px;color:#555}
+.row{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.row label{font-size:13px;color:#666;width:84px}
+.row input[type=number],.row select{flex:1;min-width:60px;padding:5px;border:1px solid #ccc;border-radius:5px;font-family:inherit}
+.row input[type=color]{width:40px;height:30px;border:1px solid #ccc;border-radius:5px;padding:0;background:#fff}
+.row input[type=range]{flex:1}
+.row button{border:1px solid #ccc;background:#fff;border-radius:5px;padding:5px 9px;min-width:32px}
+.row button:hover{background:#f4f0fd}
+.row button.on{background:#7d2ae8;color:#fff;border-color:#7d2ae8}
+.hint{font-size:12px;color:#888;line-height:1.6}
+.pen-note{background:#f4f0fd;color:#7d2ae8;border-radius:6px;padding:8px 10px;font-size:13px;margin-bottom:12px}
+.toggle-panel-btn{position:absolute;top:10px;background:#fff;border:1px solid #ccc;border-radius:4px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:20;box-shadow:0 2px 5px rgba(0,0,0,.1);font-size:12px;color:#555}
+.toggle-panel-btn:hover{background:#f0f0f5}
+#toggleLeftBtn{left:10px}
+#toggleRightBtn{right:10px}
+#present{position:fixed;inset:0;background:#000;display:none;align-items:center;justify-content:center;z-index:100;cursor:pointer}
+#present img{max-width:100vw;max-height:100vh}
+#present .counter{position:absolute;bottom:12px;right:16px;color:#aaa;font-size:13px}
+#loading{position:fixed;inset:0;background:rgba(255,255,255,.85);display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;z-index:200;font-size:16px}
+#loading .spin{width:40px;height:40px;border:4px solid #ddd;border-top-color:#7d2ae8;border-radius:50%;animation:s 1s linear infinite}
+@keyframes s{to{transform:rotate(360deg)}}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:250}
+.modal-box{background:#fff;padding:24px;border-radius:12px;width:380px;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+.modal-box h3{margin-bottom:12px;font-size:16px;color:#333}
+.modal-box input{width:100%;padding:8px 12px;border:1px solid #ccc;border-radius:6px;font-size:14px;margin-bottom:16px;font-family:inherit}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px}
+.modal-actions button{padding:6px 14px;border-radius:6px;border:1px solid #ccc;background:#f5f5f5;font-size:14px}
+.modal-actions button.primary{background:#7d2ae8;color:#fff;border-color:#7d2ae8}
+</style>
+</head>
+<body>
+<header id="topbar">
+  <span class="logo">WRSpace by DE STC</span>
+  <button id="btnNew">ใหม่</button>
+  <label class="btn">เปิดไฟล์<input type="file" id="fileOpen" accept=".pptx,.ppsx,.pdf,.json,image/*" hidden></label>
+  <label class="btn" title="ดึงข้อความจาก PDF ให้แก้ไขได้"><input type="checkbox" id="pdfEditable" checked> PDF แก้ข้อความได้</label>
+  <input id="docTitle" value="งานนำเสนอไม่มีชื่อ">
+  <div class="spacer"></div>
+  <div class="dropdown" id="sizeDD">
+    <button id="btnSize" title="ขนาดสไลด์">📐 <span id="sizeLabel">960×540</span> ▾</button>
+    <div class="menu">
+      <button data-size="960x540">แนวนอน 16:9 <small>960×540</small></button>
+      <button data-size="540x960">แนวตั้ง 9:16 <small>540×960</small></button>
+      <button data-size="960x720">แนวนอน 4:3 <small>960×720</small></button>
+      <button data-size="720x960">แนวตั้ง 3:4 <small>720×960</small></button>
+      <div class="custom-size">
+        <div class="cs-title">กำหนดเอง (pixel)</div>
+        <div class="cs-row">
+          <input type="number" id="customW" min="50" max="5000" title="กว้าง">
+          <span>×</span>
+          <input type="number" id="customH" min="50" max="5000" title="สูง">
+          <button class="cs-swap" id="swapSize" title="สลับกว้าง/สูง">⇄</button>
+        </div>
+        <button class="cs-apply" id="applySize">ใช้ขนาดนี้</button>
+      </div>
+    </div>
+  </div>
+  <button id="btnSave" title="Ctrl+S">บันทึกโปรเจกต์</button>
+  <div class="dropdown" id="exportDD">
+    <button id="btnExport">ดาวน์โหลด ▾</button>
+    <div class="menu">
+      <button data-exp="pptx">PowerPoint (.pptx)</button>
+      <button data-exp="pdf">PDF</button>
+      <button data-exp="png">PNG (สไลด์นี้)</button>
+      <button data-exp="json">ไฟล์โปรเจกต์ (.json)</button>
+    </div>
+  </div>
+  <button class="primary" id="btnPresent">▶ นำเสนอ</button>
+</header>
+
+<nav id="toolbar">
+  <button data-add="heading"><b>หัวเรื่อง</b></button>
+  <button data-add="subheading">หัวข้อรอง</button>
+  <button data-add="body">ข้อความ</button>
+  <span class="sep"></span>
+  <button data-add="rect" title="สี่เหลี่ยม">▭</button>
+  <button data-add="roundrect" title="สี่เหลี่ยมมุมมน">▢</button>
+  <button data-add="circle" title="วงกลม">◯</button>
+  <button data-add="triangle" title="สามเหลี่ยม">△</button>
+  <button data-add="star" title="ดาว">☆</button>
+  <button data-add="line" title="เส้น">╱</button>
+  <button id="btnImage">รูปภาพ</button>
+  <input type="file" id="imgInput" accept="image/*" multiple hidden>
+  <button id="btnQR">QR Code</button>
+  <span class="sep"></span>
+  <button id="btnPen" title="ปากกา (Esc เพื่อออก)">✏️ ปากกา</button>
+  <input type="color" id="penColor" value="#e63946" title="สีปากกา">
+  <input type="number" id="penWidth" value="4" min="1" max="50" title="ความหนาเส้น (px)">
+  <span class="sep"></span>
+  <button id="btnUndo" title="Ctrl+Z">↶</button>
+  <button id="btnRedo" title="Ctrl+Y">↷</button>
+  <span class="sep"></span>
+  <button id="btnZoomOut">−</button><span id="zoomLabel">100%</span><button id="btnZoomIn">+</button>
+  <button id="btnFit">พอดีจอ</button>
+</nav>
+
+<main>
+  <aside id="slides"><div id="slideList"></div><button id="addSlide">+ เพิ่มสไลด์</button></aside>
+  <section id="stage">
+    <button class="toggle-panel-btn" id="toggleLeftBtn" title="ซ่อน/แสดงแถบสไลด์">◀</button>
+    <button class="toggle-panel-btn" id="toggleRightBtn" title="ซ่อน/แสดงแผงปรับแต่ง">▶</button>
+    <div id="canvasWrap"><canvas id="c"></canvas></div>
+  </section>
+  <aside id="props"></aside>
+</main>
+
+<div class="modal-overlay" id="qrModal">
+  <div class="modal-box">
+    <h3>สร้าง QR Code</h3>
+    <input type="text" id="qrInput" placeholder="https://example.com" />
+    <div class="modal-actions">
+      <button id="qrCancel">ยกเลิก</button>
+      <button class="primary" id="qrSubmit">แทรก QR Code</button>
+    </div>
+  </div>
+</div>
+
+<div id="present"><img id="presentImg" alt=""><div class="counter" id="presentCounter"></div></div>
+<div id="loading"><div class="spin"></div><div id="loadingText">กำลังโหลด...</div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/fabric@5.3.0/dist/fabric.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+/* ===================== WRSpace (single file) ===================== */
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+const $ = s => document.querySelector(s);
+const PROPS = ['name', 'selectable'];
+const THAI = /[\u0E00-\u0E7F]/;
+const FONTS = ['Sarabun', 'Prompt', 'Kanit', 'Noto Sans Thai', 'Arial', 'Tahoma', 'Georgia', 'Times New Roman', 'Courier New'];
+const MIN_SIZE = 50, MAX_SIZE = 5000;
+let W = 960, H = 540;
+let slides = [], cur = 0, history = [], hIdx = -1, lock = false, zoom = 1, clipboard = null, dirty = false, penOn = false;
+
+const canvas = new fabric.Canvas('c', { width: W, height: H, backgroundColor: '#ffffff', preserveObjectStacking: true });
+fabric.Object.prototype.set({ transparentCorners: false, cornerColor: '#7d2ae8', cornerStyle: 'circle', borderColor: '#7d2ae8', cornerSize: 10 });
+
+/* ---------- helpers ---------- */
+const sleep0 = () => new Promise(r => setTimeout(r));
+const showLoading = t => { $('#loadingText').textContent = t || 'กำลังโหลด...'; $('#loading').style.display = 'flex'; };
+const hideLoading = () => { $('#loading').style.display = 'none'; };
+const docName = () => ($('#docTitle').value || 'presentation').replace(/[\\/:*?"<>|]/g, '_');
+const blankJSON = (bg = '#ffffff') => ({ version: fabric.version, objects: [], background: bg });
+const isText = o => !!o && /text/.test(o.type);
+const readAsDataURL = f => new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(f); });
+const loadImage = url => new Promise((res, rej) => fabric.Image.fromURL(url, (img, err) => (err || !img || !img.width) ? rej(new Error('โหลดรูปไม่ได้')) : res(img), { crossOrigin: 'anonymous' }));
+function pickFile(accept, cb) { const i = document.createElement('input'); i.type = 'file'; i.accept = accept; i.onchange = () => i.files[0] && cb(i.files[0]); i.click(); }
+function toHex(c) { try { if (!c || typeof c !== 'string' || c === 'transparent') return '#000000'; return '#' + new fabric.Color(c).toHex(); } catch { return '#000000'; } }
+function autoWrap(o) { if (o && o.type === 'textbox') { const v = THAI.test(o.text); if (o.splitByGrapheme !== v) { o.splitByGrapheme = v; o.initDimensions(); } } }
+function fitDims(srcW, srcH, base = 960) {
+  return srcW >= srcH ? { w: base, h: Math.round(base * srcH / srcW) } : { w: Math.round(base * srcW / srcH), h: base };
+}
+
+function dataURLtoBlob(u) {
+  const [head, b64] = u.split(','), mime = head.match(/:(.*?);/)[1], bin = atob(b64);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type: mime });
+}
+function toast(msg, link, ms) {
+  document.getElementById('ssToast')?.remove();
+  const t = document.createElement('div'); t.id = 'ssToast';
+  t.style.cssText = 'position:fixed;right:16px;bottom:16px;background:#fff;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.25);padding:12px 16px;z-index:300;font-size:14px;max-width:360px;line-height:1.5';
+  t.append(msg);
+  if (link) {
+    const a = document.createElement('a'); a.href = link.url; a.download = link.name;
+    a.textContent = ' คลิกที่นี่'; a.style.cssText = 'color:#7d2ae8;font-weight:700'; t.append(a);
+  }
+  const x = document.createElement('button'); x.textContent = '✕';
+  x.style.cssText = 'margin-left:10px;border:0;background:none;cursor:pointer'; x.onclick = () => t.remove(); t.append(x);
+  document.body.append(t);
+  setTimeout(() => t.remove(), ms || (link ? 60000 : 3000));
+}
+function saveBlob(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name; a.style.display = 'none';
+  document.body.append(a); a.click(); a.remove();
+  toast(`กำลังดาวน์โหลด ${name} ถ้าไฟล์ไม่มา`, { url, name });
+  setTimeout(() => URL.revokeObjectURL(url), 120000);
+}
+const download = (dataUrl, name) => saveBlob(dataURLtoBlob(dataUrl), name);
+
+/* ---------- IndexedDB AutoSave ---------- */
+const idb = (mode, fn) => new Promise((res, rej) => {
+  const r = indexedDB.open('wrspace', 1);
+  r.onupgradeneeded = () => r.result.createObjectStore('kv');
+  r.onerror = () => rej(r.error);
+  r.onsuccess = () => {
+    const tx = r.result.transaction('kv', mode), q = fn(tx.objectStore('kv'));
+    tx.oncomplete = () => res(q && q.result); tx.onerror = () => rej(tx.error);
+  };
+});
+const projectData = () => { saveCurrent(); return { app: 'wrspace', W, H, title: $('#docTitle').value, slides: slides.map(s => s.json), savedAt: Date.now() }; };
+async function saveToBrowser(silent) {
+  try {
+    await idb('readwrite', s => s.put(projectData(), 'autosave'));
+    dirty = false;
+    if (!silent) toast('บันทึกงานไว้ในเบราว์เซอร์แล้ว ✓');
+  } catch (e) {
+    console.error(e);
+    if (!silent) alert('บันทึกในเบราว์เซอร์ไม่ได้: ' + e.message);
+  }
+}
+setInterval(() => { if (dirty) saveToBrowser(true); }, 5000);
+
+function withStatic(json, fn) {
+  return new Promise(res => {
+    const sc = new fabric.StaticCanvas(document.createElement('canvas'), { width: W, height: H, enableRetinaScaling: false });
+    sc.loadFromJSON(json, async () => { sc.renderAll(); const r = await fn(sc); sc.dispose(); res(r); });
+  });
+}
+const renderJSON = (json, mult = 1, fmt = 'png') => withStatic(json, sc => sc.toDataURL({ format: fmt, quality: 0.9, multiplier: mult }));
+
+/* ---------- zoom / size ---------- */
+function applyZoom(z) {
+  zoom = Math.max(0.05, Math.min(4, z));
+  canvas.setZoom(zoom); canvas.setDimensions({ width: W * zoom, height: H * zoom });
+  $('#zoomLabel').textContent = Math.round(zoom * 100) + '%';
+}
+function fitZoom() { const st = $('#stage'); applyZoom(Math.min((st.clientWidth - 60) / W, (st.clientHeight - 60) / H)); }
+function setSize(w, h) {
+  W = w; H = h;
+  canvas.setDimensions({ width: W, height: H });
+  fitZoom();
+  $('#sizeLabel').textContent = `${W}×${H}`;
+}
+window.addEventListener('resize', fitZoom);
+canvas.on('mouse:wheel', opt => { if (!opt.e.ctrlKey) return; applyZoom(zoom * 0.999 ** opt.e.deltaY); opt.e.preventDefault(); opt.e.stopPropagation(); });
+
+// เปลี่ยนขนาดสไลด์ทุกหน้า: ย่อ/ขยายเนื้อหาตามสัดส่วนเดิมแล้ววางกึ่งกลาง
+async function resizeSlides(nw, nh) {
+  nw = Math.round(nw); nh = Math.round(nh);
+  if (!(nw >= MIN_SIZE && nh >= MIN_SIZE && nw <= MAX_SIZE && nh <= MAX_SIZE)) {
+    alert(`ขนาดต้องอยู่ระหว่าง ${MIN_SIZE}–${MAX_SIZE} px`); return;
+  }
+  if (nw === W && nh === H) return;
+  saveCurrent(); canvas.discardActiveObject();
+  const k = Math.min(nw / W, nh / H), dx = (nw - W * k) / 2, dy = (nh - H * k) / 2;
+  const fit = o => {
+    if (!o) return;
+    o.left = (o.left || 0) * k + dx; o.top = (o.top || 0) * k + dy;
+    o.scaleX = (o.scaleX || 1) * k; o.scaleY = (o.scaleY || 1) * k;
+  };
+  slides.forEach(s => { (s.json.objects || []).forEach(fit); fit(s.json.backgroundImage); });
+  showLoading('กำลังปรับขนาดสไลด์...');
+  try {
+    setSize(nw, nh);
+    for (let i = 0; i < slides.length; i++) slides[i].thumb = await renderJSON(slides[i].json, 180 / Math.max(W, H), 'jpeg');
+    await gotoSlide(cur, true);
+    dirty = true;
+  } finally { hideLoading(); }
+}
+
+/* ---------- pencil ---------- */
+function setPen(on) {
+  penOn = on;
+  canvas.isDrawingMode = on;
+  if (on) {
+    canvas.discardActiveObject();
+    const b = new fabric.PencilBrush(canvas);
+    b.color = $('#penColor').value;
+    b.width = Math.max(1, +$('#penWidth').value || 4);
+    b.decimate = 2;
+    canvas.freeDrawingBrush = b;
+  }
+  $('#btnPen').classList.toggle('on', on);
+  canvas.requestRenderAll(); updateProps();
+}
+canvas.on('path:created', e => { e.path.set({ strokeLineCap: 'round', strokeLineJoin: 'round' }); });
+
+/* ---------- state / history ---------- */
+const snapshot = () => canvas.toJSON(PROPS);
+function saveCurrent() { if (slides[cur]) slides[cur].json = snapshot(); }
+function updateThumb() {
+  const s = slides[cur]; if (!s) return;
+  s.thumb = canvas.toDataURL({ format: 'jpeg', quality: 0.7, multiplier: 180 / Math.max(W, H) / zoom });
+  const img = document.querySelectorAll('#slideList .thumb img')[cur]; if (img) img.src = s.thumb;
+}
+function commit() {
+  if (lock || !slides[cur]) return;
+  const j = snapshot(); slides[cur].json = j;
+  history = history.slice(0, hIdx + 1); history.push(JSON.stringify(j));
+  if (history.length > 60) history.shift();
+  hIdx = history.length - 1; updateThumb(); dirty = true;
+}
+function loadIntoCanvas(json) {
+  return new Promise(res => { lock = true; canvas.discardActiveObject(); canvas.loadFromJSON(json, () => { canvas.renderAll(); lock = false; res(); }); });
+}
+function restoreHistory() { const j = JSON.parse(history[hIdx]); slides[cur].json = j; loadIntoCanvas(j).then(() => { updateThumb(); updateProps(); }); }
+const undo = () => { if (hIdx > 0) { hIdx--; restoreHistory(); } };
+const redo = () => { if (hIdx < history.length - 1) { hIdx++; restoreHistory(); } };
+
+['object:added', 'object:removed'].forEach(ev => canvas.on(ev, commit));
+canvas.on('object:modified', () => { commit(); updateProps(); });
+canvas.on('text:changed', e => autoWrap(e.target));
+['selection:created', 'selection:updated', 'selection:cleared'].forEach(ev => canvas.on(ev, updateProps));
+
+/* ---------- slides ---------- */
+async function gotoSlide(i, skipSave) {
+  if (!skipSave) saveCurrent();
+  cur = i; await loadIntoCanvas(slides[i].json);
+  history = [JSON.stringify(slides[i].json)]; hIdx = 0;
+  renderSlideList(); updateProps();
+}
+function renderSlideList() {
+  const list = $('#slideList'); list.innerHTML = ''; dirty = true;
+  slides.forEach((s, i) => {
+    const d = document.createElement('div');
+    d.className = 'thumb' + (i === cur ? ' active' : ''); d.draggable = true;
+    d.innerHTML = `<span class="num">${i + 1}</span><img style="aspect-ratio:${W}/${H}" ${s.thumb ? `src="${s.thumb}"` : ''}>
+      <div class="acts"><button data-a="up" title="เลื่อนขึ้น">↑</button><button data-a="down" title="เลื่อนลง">↓</button><button data-a="dup" title="ทำซ้ำ">⧉</button><button data-a="del" title="ลบ">✕</button></div>`;
+    d.onclick = e => { const a = e.target.dataset.a; if (a) { e.stopPropagation(); slideAction(a, i); } else if (i !== cur) gotoSlide(i); };
+    d.ondragstart = e => e.dataTransfer.setData('text/slide', String(i));
+    d.ondragover = e => e.preventDefault();
+    d.ondrop = e => { const f = e.dataTransfer.getData('text/slide'); if (f !== '') { e.preventDefault(); e.stopPropagation(); moveSlide(+f, i); } };
+    list.appendChild(d);
+  });
+}
+function moveSlide(from, to) {
+  if (from === to) return;
+  saveCurrent(); const cs = slides[cur];
+  const [s] = slides.splice(from, 1); slides.splice(to, 0, s);
+  cur = slides.indexOf(cs); renderSlideList();
+}
+async function slideAction(a, i) {
+  saveCurrent();
+  if (a === 'up' && i > 0) moveSlide(i, i - 1);
+  else if (a === 'down' && i < slides.length - 1) moveSlide(i, i + 1);
+  else if (a === 'dup') { slides.splice(i + 1, 0, JSON.parse(JSON.stringify(slides[i]))); await gotoSlide(i + 1, true); }
+  else if (a === 'del') {
+    if (!confirm(`ลบสไลด์ ${i + 1}?`)) return;
+    if (slides.length === 1) { slides[0] = { json: blankJSON(), thumb: '' }; await gotoSlide(0, true); updateThumb(); return; }
+    slides.splice(i, 1);
+    const n = i < cur ? cur - 1 : i === cur ? Math.min(i, slides.length - 1) : cur;
+    await gotoSlide(n, true);
+  }
+}
+async function addSlide() { saveCurrent(); slides.splice(cur + 1, 0, { json: blankJSON(), thumb: '' }); await gotoSlide(cur + 1, true); updateThumb(); }
+
+/* ---------- add elements ---------- */
+const txt = (t, o) => { const tb = new fabric.Textbox(t, { fontFamily: 'Sarabun', fill: '#222222', ...o }); autoWrap(tb); return tb; };
+function starPoints(n, R, r) { const p = []; for (let i = 0; i < n * 2; i++) { const a = Math.PI / n * i - Math.PI / 2, rad = i % 2 ? r : R; p.push({ x: R + rad * Math.cos(a), y: R + rad * Math.sin(a) }); } return p; }
+const ADD = {
+  heading: () => txt('เพิ่มหัวเรื่อง', { fontSize: 56, fontWeight: 'bold', width: Math.min(600, W * 0.9), textAlign: 'center' }),
+  subheading: () => txt('เพิ่มหัวข้อรอง', { fontSize: 34, fontWeight: 'bold', width: Math.min(500, W * 0.85), textAlign: 'center' }),
+  body: () => txt('เพิ่มข้อความเนื้อหา', { fontSize: 22, width: Math.min(400, W * 0.8) }),
+  rect: () => new fabric.Rect({ width: 220, height: 140, fill: '#7d2ae8' }),
+  roundrect: () => new fabric.Rect({ width: 220, height: 140, rx: 20, ry: 20, fill: '#00c4cc' }),
+  circle: () => new fabric.Ellipse({ rx: 90, ry: 90, fill: '#ff6b6b' }),
+  triangle: () => new fabric.Triangle({ width: 180, height: 160, fill: '#ffb703' }),
+  star: () => new fabric.Polygon(starPoints(5, 90, 40), { fill: '#f9c80e' }),
+  line: () => new fabric.Line([0, 0, 300, 0], { stroke: '#222222', strokeWidth: 4 }),
+};
+function addObj(o) {
+  if (penOn) setPen(false);
+  lock = true; canvas.add(o);
+  o.setPositionByOrigin(new fabric.Point(W / 2, H / 2), 'center', 'center'); o.setCoords();
+  lock = false; canvas.setActiveObject(o); canvas.requestRenderAll(); commit();
+}
+async function addImageFile(f) {
+  const img = await loadImage(await readAsDataURL(f));
+  img.scale(Math.min(1, (W * 0.6) / img.width, (H * 0.6) / img.height)); addObj(img);
+}
+async function addQRCode(text) {
+  if (!text) return;
+  const url = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(text)}`;
+  try {
+    const img = await loadImage(url);
+    img.scale(Math.min(1, 200 / img.width, 200 / img.height));
+    addObj(img);
+  } catch (e) {
+    alert('สร้าง QR Code ไม่สำเร็จ (ต้องต่ออินเทอร์เน็ต): ' + e.message);
+  }
+}
+
+/* ---------- edit ops ---------- */
+function deleteSelected() {
+  const objs = canvas.getActiveObjects(); if (!objs.length) return;
+  lock = true; objs.forEach(o => canvas.remove(o)); canvas.discardActiveObject(); lock = false;
+  canvas.requestRenderAll(); commit(); updateProps();
+}
+function copy() { const o = canvas.getActiveObject(); if (o) o.clone(c => { clipboard = c; }, PROPS); }
+function paste() {
+  if (!clipboard) return;
+  clipboard.clone(c => {
+    canvas.discardActiveObject();
+    c.set({ left: c.left + 20, top: c.top + 20, evented: true });
+    lock = true;
+    if (c.type === 'activeSelection') { c.canvas = canvas; c.forEachObject(o => canvas.add(o)); c.setCoords(); } else canvas.add(c);
+    lock = false;
+    clipboard.set({ left: clipboard.left + 20, top: clipboard.top + 20 });
+    canvas.setActiveObject(c); canvas.requestRenderAll(); commit();
+  }, PROPS);
+}
+function duplicate() { const o = canvas.getActiveObject(); if (o) o.clone(c => { clipboard = c; paste(); }, PROPS); }
+function layer(fn) { const o = canvas.getActiveObject(); if (!o) return; canvas[fn](o); canvas.requestRenderAll(); commit(); }
+function group() { const o = canvas.getActiveObject(); if (o && o.type === 'activeSelection') { lock = true; o.toGroup(); lock = false; canvas.requestRenderAll(); commit(); updateProps(); } }
+function ungroup() { const o = canvas.getActiveObject(); if (o && o.type === 'group') { lock = true; o.toActiveSelection(); lock = false; canvas.requestRenderAll(); commit(); updateProps(); } }
+function alignPage(d) {
+  const o = canvas.getActiveObject(); if (!o) return;
+  const b = o.getBoundingRect(true, true); let dx = 0, dy = 0;
+  if (d === 'l') dx = -b.left; if (d === 'c') dx = W / 2 - (b.left + b.width / 2); if (d === 'r') dx = W - (b.left + b.width);
+  if (d === 't') dy = -b.top; if (d === 'm') dy = H / 2 - (b.top + b.height / 2); if (d === 'b') dy = H - (b.top + b.height);
+  o.set({ left: o.left + dx, top: o.top + dy }); o.setCoords(); canvas.requestRenderAll(); commit();
+}
+
+/* ---------- snap guides ---------- */
+let guides = [], guidesDrawn = false;
+canvas.on('object:moving', e => {
+  const o = e.target, T = 8 / zoom; guides = [];
+  let c = o.getCenterPoint();
+  if (Math.abs(c.x - W / 2) < T) { o.setPositionByOrigin(new fabric.Point(W / 2, c.y), 'center', 'center'); guides.push(['v', W / 2]); }
+  c = o.getCenterPoint();
+  if (Math.abs(c.y - H / 2) < T) { o.setPositionByOrigin(new fabric.Point(c.x, H / 2), 'center', 'center'); guides.push(['h', H / 2]); }
+});
+canvas.on('mouse:up', () => { if (guides.length) { guides = []; canvas.requestRenderAll(); } });
+canvas.on('after:render', () => {
+  if (canvas.isDrawingMode) return;
+  const g = canvas.contextTop; if (!g || (!guides.length && !guidesDrawn)) return;
+  canvas.clearContext(g); guidesDrawn = guides.length > 0;
+  g.save(); g.strokeStyle = '#ff2d95'; g.lineWidth = 1; g.setLineDash([5, 4]);
+  for (const [d, v] of guides) { g.beginPath(); if (d === 'v') { g.moveTo(v * zoom, 0); g.lineTo(v * zoom, H * zoom); } else { g.moveTo(0, v * zoom); g.lineTo(W * zoom, v * zoom); } g.stroke(); }
+  g.restore();
+});
+
+/* ---------- properties panel ---------- */
+const TEXT_KEYS = ['fill', 'fontSize', 'fontFamily', 'fontWeight', 'fontStyle', 'underline'];
+const targets = () => { const o = canvas.getActiveObject(); return !o ? [] : o.type === 'activeSelection' ? o.getObjects() : [o]; };
+const hasSel = o => isText(o) && o.isEditing && o.selectionStart !== o.selectionEnd;
+function curVal(o, k) { if (hasSel(o)) { const s = o.getSelectionStyles(o.selectionStart, o.selectionStart + 1)[0] || {}; return s[k] ?? o[k]; } return o[k]; }
+function setProp(k, v, save = true) {
+  const o = canvas.getActiveObject(); if (!o) return;
+  if (hasSel(o) && TEXT_KEYS.includes(k)) o.setSelectionStyles({ [k]: v });
+  else targets().forEach(t => {
+    t.set(k, v);
+    if (isText(t)) { if (t.styles) for (const l in t.styles) for (const c in t.styles[l]) delete t.styles[l][c][k]; t.initDimensions(); }
+    t.setCoords();
+  });
+  canvas.requestRenderAll(); if (save) commit();
+}
+async function setFont(f) { try { await document.fonts.load(`20px "${f}"`); fabric.util.clearFabricFontCache(f); } catch {} setProp('fontFamily', f); }
+
+function updateProps() {
+  const p = $('#props'), o = canvas.getActiveObject();
+  const on = (id, ev, fn) => { const el = document.getElementById(id); if (el) el['on' + ev] = fn; };
+  if (!o) {
+    const bg = typeof canvas.backgroundColor === 'string' ? canvas.backgroundColor : '#ffffff';
+    p.innerHTML = `${penOn ? '<div class="pen-note">✏️ โหมดปากกา: ลากเมาส์เพื่อวาด<br>กด Esc หรือปุ่มปากกาเพื่อออก</div>' : ''}
+      <h3>สไลด์ ${cur + 1} / ${slides.length}</h3>
+      <div class="row"><label>สีพื้นหลัง</label><input type="color" id="pBg" value="${toHex(bg)}"></div>
+      <div class="row"><button id="pBgImg">ใส่รูปพื้นหลัง</button><button id="pBgClear">ลบรูปพื้นหลัง</button></div>
+      <div class="row"><label>ขนาด</label><span class="hint">${W} × ${H} px</span></div>
+      <p class="hint">• ดับเบิลคลิกข้อความเพื่อแก้ไข<br>• ลากไฟล์ PPTX / PDF / รูป มาวางได้<br>• Ctrl+Z/Y ย้อน/ทำซ้ำ • Ctrl+C/V คัดลอก/วาง<br>• Ctrl+D ทำซ้ำ • Delete ลบ • ลูกศรขยับ<br>• Ctrl+ล้อเมาส์ ซูม</p>`;
+    on('pBg', 'input', e => { canvas.backgroundColor = e.target.value; canvas.requestRenderAll(); });
+    on('pBg', 'change', commit);
+    on('pBgImg', 'click', () => pickFile('image/*', async f => {
+      const img = await loadImage(await readAsDataURL(f)); img.set({ left: 0, top: 0, scaleX: W / img.width, scaleY: H / img.height });
+      canvas.setBackgroundImage(img, () => { canvas.requestRenderAll(); commit(); });
+    }));
+    on('pBgClear', 'click', () => { canvas.backgroundImage = null; canvas.requestRenderAll(); commit(); });
+    return;
+  }
+  let h = '';
+  if (isText(o)) {
+    const fonts = FONTS.includes(o.fontFamily) ? FONTS : [o.fontFamily, ...FONTS];
+    h += `<h3>ข้อความ</h3>
+      <div class="row"><select id="pFont">${fonts.map(f => `<option ${f === o.fontFamily ? 'selected' : ''} style="font-family:'${f}'">${f}</option>`).join('')}</select></div>
+      <div class="row"><label>ขนาด</label><input type="number" id="pSize" min="6" max="400" value="${Math.round(o.fontSize)}"><input type="color" id="pColor" value="${toHex(o.fill)}"></div>
+      <div class="row"><button id="pB" class="${o.fontWeight === 'bold' ? 'on' : ''}"><b>B</b></button><button id="pI" class="${o.fontStyle === 'italic' ? 'on' : ''}"><i>I</i></button><button id="pU" class="${o.underline ? 'on' : ''}"><u>U</u></button>
+        ${['left', 'center', 'right', 'justify'].map(a => `<button data-talign="${a}" class="${o.textAlign === a ? 'on' : ''}">${{ left: '⇤', center: '↔', right: '⇥', justify: '☰' }[a]}</button>`).join('')}</div>
+      <div class="row"><label>ระยะบรรทัด</label><input type="range" id="pLH" min="0.8" max="3" step="0.05" value="${o.lineHeight}"></div>
+      <div class="row"><label>ระยะตัวอักษร</label><input type="range" id="pCS" min="-100" max="800" step="10" value="${o.charSpacing || 0}"></div>`;
+  }
+  if (['rect', 'ellipse', 'circle', 'triangle', 'polygon'].includes(o.type)) {
+    h += `<h3>รูปทรง</h3>
+      <div class="row"><label>สีพื้น</label><input type="color" id="pFill" value="${toHex(o.fill)}"><button id="pNoFill">ไม่มีสี</button></div>
+      <div class="row"><label>เส้นขอบ</label><input type="color" id="pStroke" value="${toHex(o.stroke)}"><input type="number" id="pSW" min="0" max="50" value="${o.strokeWidth || 0}"></div>
+      ${o.type === 'rect' ? `<div class="row"><label>มุมโค้ง</label><input type="range" id="pRx" min="0" max="${Math.round(Math.min(o.width, o.height) / 2)}" value="${o.rx || 0}"></div>` : ''}`;
+  }
+  if (o.type === 'path') h += `<h3>เส้นที่วาด</h3><div class="row"><label>สี / หนา</label><input type="color" id="pStroke" value="${toHex(o.stroke)}"><input type="number" id="pSW" min="1" max="50" value="${o.strokeWidth}"></div>`;
+  if (o.type === 'line') h += `<h3>เส้น</h3><div class="row"><label>สี / หนา</label><input type="color" id="pStroke" value="${toHex(o.stroke)}"><input type="number" id="pSW" min="1" max="50" value="${o.strokeWidth}"></div>`;
+  if (o.type === 'image') h += `<h3>รูปภาพ</h3><div class="row"><button id="pReplace">เปลี่ยนรูป</button></div>`;
+  h += `<h3>ทั่วไป</h3>
+    <div class="row"><label>ความทึบ</label><input type="range" id="pOp" min="0" max="1" step="0.05" value="${o.opacity}"></div>
+    <div class="row"><label>หมุน (°)</label><input type="number" id="pAngle" value="${Math.round(o.angle || 0)}"></div>
+    <div class="row"><label>ลำดับชั้น</label><button data-layer="bringToFront" title="หน้าสุด">⤒</button><button data-layer="bringForward" title="ขึ้นหน้า">↑</button><button data-layer="sendBackwards" title="ถอยหลัง">↓</button><button data-layer="sendToBack" title="หลังสุด">⤓</button></div>
+    <div class="row"><label>จัดตำแหน่ง</label>${[['l', '⇤'], ['c', '↔'], ['r', '⇥'], ['t', '⤒'], ['m', '↕'], ['b', '⤓']].map(([k, s]) => `<button data-al="${k}">${s}</button>`).join('')}</div>
+    <div class="row">${o.type === 'activeSelection' ? '<button id="pGroup">จัดกลุ่ม</button>' : ''}${o.type === 'group' ? '<button id="pUngroup">แยกกลุ่ม</button>' : ''}<button id="pDup">ทำซ้ำ</button><button id="pDel">ลบ</button></div>`;
+  p.innerHTML = h;
+
+  on('pFont', 'change', e => setFont(e.target.value));
+  on('pSize', 'change', e => setProp('fontSize', +e.target.value));
+  on('pColor', 'input', e => setProp('fill', e.target.value, false)); on('pColor', 'change', commit);
+  on('pB', 'click', () => { setProp('fontWeight', curVal(o, 'fontWeight') === 'bold' ? 'normal' : 'bold'); updateProps(); });
+  on('pI', 'click', () => { setProp('fontStyle', curVal(o, 'fontStyle') === 'italic' ? 'normal' : 'italic'); updateProps(); });
+  on('pU', 'click', () => { setProp('underline', !curVal(o, 'underline')); updateProps(); });
+  p.querySelectorAll('[data-talign]').forEach(b => b.onclick = () => { setProp('textAlign', b.dataset.talign); updateProps(); });
+  on('pLH', 'input', e => setProp('lineHeight', +e.target.value, false)); on('pLH', 'change', commit);
+  on('pCS', 'input', e => setProp('charSpacing', +e.target.value, false)); on('pCS', 'change', commit);
+  on('pFill', 'input', e => setProp('fill', e.target.value, false)); on('pFill', 'change', commit);
+  on('pNoFill', 'click', () => setProp('fill', 'transparent'));
+  on('pStroke', 'input', e => { if (!o.strokeWidth) setProp('strokeWidth', 2, false); setProp('stroke', e.target.value, false); }); on('pStroke', 'change', commit);
+  on('pSW', 'change', e => setProp('strokeWidth', +e.target.value));
+  on('pRx', 'input', e => { setProp('rx', +e.target.value, false); setProp('ry', +e.target.value, false); }); on('pRx', 'change', commit);
+  on('pOp', 'input', e => setProp('opacity', +e.target.value, false)); on('pOp', 'change', commit);
+  on('pAngle', 'change', e => { o.rotate(+e.target.value); o.setCoords(); canvas.requestRenderAll(); commit(); });
+  on('pReplace', 'click', () => pickFile('image/*', async f => {
+    const w = o.getScaledWidth(), hh = o.getScaledHeight(), url = await readAsDataURL(f);
+    o.setSrc(url, () => { o.set({ cropX: 0, cropY: 0, scaleX: w / o.width, scaleY: hh / o.height }); o.setCoords(); canvas.requestRenderAll(); commit(); });
+  }));
+  p.querySelectorAll('[data-layer]').forEach(b => b.onclick = () => layer(b.dataset.layer));
+  p.querySelectorAll('[data-al]').forEach(b => b.onclick = () => alignPage(b.dataset.al));
+  on('pGroup', 'click', group); on('pUngroup', 'click', ungroup);
+  on('pDup', 'click', duplicate); on('pDel', 'click', deleteSelected);
+}
+
+/* ===================== IMPORT: PPTX ===================== */
+const EMU_PER_PT = 12700;
+const RNS = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+const byTag = (el, n) => el ? [...el.getElementsByTagNameNS('*', n)] : [];
+const child = (el, n) => el ? [...el.children].find(c => c.localName === n) || null : null;
+const kids = (el, n) => el ? [...el.children].filter(c => c.localName === n) : [];
+const attr = (el, a, d = null) => (el && el.getAttribute(a) !== null) ? el.getAttribute(a) : d;
+const rid = (el, n) => el ? (el.getAttributeNS(RNS, n) || el.getAttribute('r:' + n)) : null;
+const MIME = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', bmp: 'image/bmp', webp: 'image/webp', svg: 'image/svg+xml' };
+const ALIGN = { l: 'left', ctr: 'center', r: 'right', just: 'justify', dist: 'justify' };
+const BULLETS = ['•', '–', '-', '»', '►', '▪', '■', '○', '◦', '✓', '➢', '→', '*'];
+
+function resolvePath(base, target) {
+  if (target.startsWith('/')) return target.slice(1);
+  const parts = base.split('/'); parts.pop();
+  for (const seg of target.split('/')) { if (seg === '..') parts.pop(); else if (seg !== '.') parts.push(seg); }
+  return parts.join('/');
+}
+async function readXML(zip, p) { const f = zip.file(p); return f ? new DOMParser().parseFromString(await f.async('string'), 'application/xml') : null; }
+async function readRels(zip, part) {
+  const i = part.lastIndexOf('/'); const doc = await readXML(zip, `${part.slice(0, i)}/_rels/${part.slice(i + 1)}.rels`); const map = {};
+  byTag(doc, 'Relationship').forEach(r => {
+    const ext = r.getAttribute('TargetMode') === 'External';
+    map[r.getAttribute('Id')] = { type: r.getAttribute('Type').split('/').pop(), target: ext ? r.getAttribute('Target') : resolvePath(part, r.getAttribute('Target')) };
+  });
+  return map;
+}
+async function readTheme(zip, p) {
+  const doc = await readXML(zip, p); const colors = {}, fonts = { major: 'Sarabun', minor: 'Sarabun' };
+  const cs = byTag(doc, 'clrScheme')[0];
+  if (cs) for (const c of cs.children) { const v = c.firstElementChild; if (v) colors[c.localName] = v.localName === 'sysClr' ? attr(v, 'lastClr') : attr(v, 'val'); }
+  const mj = byTag(doc, 'majorFont')[0], mn = byTag(doc, 'minorFont')[0];
+  if (mj) fonts.major = attr(child(mj, 'latin'), 'typeface') || fonts.major;
+  if (mn) fonts.minor = attr(child(mn, 'latin'), 'typeface') || fonts.minor;
+  return { colors, fonts };
+}
+function rgbToHsl(r, g, b) {
+  r /= 255; g /= 255; b /= 255; const mx = Math.max(r, g, b), mn = Math.min(r, g, b); let h = 0, s = 0; const l = (mx + mn) / 2;
+  if (mx !== mn) { const d = mx - mn; s = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn); h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; h /= 6; }
+  return [h, s, l];
+}
+function hslToRgb(h, s, l) {
+  if (!s) return [l * 255, l * 255, l * 255];
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q;
+  const f = t => { if (t < 0) t += 1; if (t > 1) t -= 1; return t < 1 / 6 ? p + (q - p) * 6 * t : t < 1 / 2 ? q : t < 2 / 3 ? p + (q - p) * (2 / 3 - t) * 6 : p; };
+  return [f(h + 1 / 3) * 255, f(h) * 255, f(h - 1 / 3) * 255];
+}
+function makeColorResolver(theme) {
+  const MAP = { tx1: 'dk1', bg1: 'lt1', tx2: 'dk2', bg2: 'lt2' };
+  return container => {
+    if (!container) return null;
+    const c = [...container.children].find(e => ['srgbClr', 'schemeClr', 'sysClr', 'prstClr'].includes(e.localName));
+    if (!c) return null;
+    let hex = '000000';
+    if (c.localName === 'srgbClr') hex = attr(c, 'val', '000000');
+    else if (c.localName === 'schemeClr') { const v = attr(c, 'val'); hex = theme.colors[MAP[v] || v] || '000000'; }
+    else if (c.localName === 'sysClr') hex = attr(c, 'lastClr', '000000');
+    else { try { hex = new fabric.Color(attr(c, 'val')).toHex(); } catch {} }
+    const n = parseInt(hex, 16); let r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255, a = 1;
+    for (const m of c.children) {
+      const v = +attr(m, 'val', 0) / 100000;
+      if (m.localName === 'alpha') a = v;
+      else if (m.localName === 'shade') { r *= v; g *= v; b *= v; }
+      else if (m.localName === 'tint') { r += (255 - r) * (1 - v); g += (255 - g) * (1 - v); b += (255 - b) * (1 - v); }
+      else if (m.localName === 'lumMod' || m.localName === 'lumOff') {
+        let [hh, ss, ll] = rgbToHsl(r, g, b); ll = m.localName === 'lumMod' ? ll * v : ll + v;
+        [r, g, b] = hslToRgb(hh, ss, Math.min(1, Math.max(0, ll)));
+      }
+    }
+    return `rgba(${Math.round(r)},${Math.round(g)},${Math.round(b)},${a})`;
+  };
+}
+async function mediaURL(ctx, rels, blip) {
+  const id = rid(blip, 'embed'), r = id && rels[id]; if (!r) return null;
+  const ext = r.target.split('.').pop().toLowerCase(); if (!MIME[ext]) return null;
+  const f = ctx.zip.file(r.target); return f ? `data:${MIME[ext]};base64,${await f.async('base64')}` : null;
+}
+function xfrmOf(el) {
+  const pr = child(el, 'spPr') || child(el, 'grpSpPr');
+  const xf = pr ? child(pr, 'xfrm') : child(el, 'xfrm');
+  const off = child(xf, 'off'), ext = child(xf, 'ext'); if (!off || !ext) return null;
+  const co = child(xf, 'chOff'), ce = child(xf, 'chExt');
+  return { x: +attr(off, 'x'), y: +attr(off, 'y'), cx: +attr(ext, 'cx'), cy: +attr(ext, 'cy'),
+    chx: +attr(co, 'x', 0), chy: +attr(co, 'y', 0), chcx: +attr(ce, 'cx', 0), chcy: +attr(ce, 'cy', 0),
+    rot: +attr(xf, 'rot', 0) / 60000, flipH: attr(xf, 'flipH') === '1', flipV: attr(xf, 'flipV') === '1' };
+}
+function phInfo(sp) {
+  const ph = byTag(sp.firstElementChild, 'ph')[0]; if (!ph) return null;
+  return { type: attr(ph, 'type', 'body'), explicit: attr(ph, 'type') !== null, idx: attr(ph, 'idx') };
+}
+function findPh(doc, info) {
+  if (!doc || !info) return null;
+  const sps = byTag(doc, 'sp'), norm = t => ({ ctrTitle: 'title', subTitle: 'body', obj: 'body' }[t] || t);
+  return (info.idx && sps.find(s => phInfo(s)?.idx === info.idx))
+    || sps.find(s => phInfo(s)?.type === info.type)
+    || sps.find(s => { const p = phInfo(s); return p && norm(p.type) === norm(info.type); }) || null;
+}
+
+async function importPPTX(buf) {
+  const zip = await JSZip.loadAsync(buf);
+  const pres = await readXML(zip, 'ppt/presentation.xml');
+  if (!pres) throw new Error('ไฟล์ PPTX ไม่ถูกต้อง');
+  const sz = byTag(pres, 'sldSz')[0];
+  const cx = +attr(sz, 'cx', 9144000), cy = +attr(sz, 'cy', 5143500);
+  const { w, h } = fitDims(cx, cy);   // ใช้สัดส่วนตามไฟล์ต้นฉบับ
+  const presRels = await readRels(zip, 'ppt/presentation.xml');
+  const themeRel = Object.values(presRels).find(r => r.type === 'theme');
+  const theme = await readTheme(zip, themeRel ? themeRel.target : 'ppt/theme/theme1.xml');
+  const ctx = { zip, S: w / cx, theme, colorOf: makeColorResolver(theme), w, h };
+  const ids = byTag(pres, 'sldId').map(e => rid(e, 'id')), out = [];
+  for (let i = 0; i < ids.length; i++) {
+    $('#loadingText').textContent = `กำลังอ่านสไลด์ ${i + 1}/${ids.length}`;
+    const rel = presRels[ids[i]]; if (!rel) continue;
+    try { out.push(await parseSlide(ctx, rel.target)); } catch (e) { console.warn('slide', i + 1, e); out.push(blankJSON()); }
+    await sleep0();
+  }
+  return { W: w, H: h, slides: out };
+}
+async function parseSlide(ctx, slidePath) {
+  const zip = ctx.zip;
+  const slide = await readXML(zip, slidePath), sRels = await readRels(zip, slidePath);
+  const layRel = Object.values(sRels).find(r => r.type === 'slideLayout');
+  const layout = layRel ? await readXML(zip, layRel.target) : null;
+  const lRels = layRel ? await readRels(zip, layRel.target) : {};
+  const masRel = Object.values(lRels).find(r => r.type === 'slideMaster');
+  const master = masRel ? await readXML(zip, masRel.target) : null;
+  const mRels = masRel ? await readRels(zip, masRel.target) : {};
+  const sctx = { ...ctx, layout, master, rels: sRels };
+  const json = blankJSON('#ffffff');
+  for (const [doc, rels] of [[slide, sRels], [layout, lRels], [master, mRels]]) {
+    if (!doc) continue;
+    const bg = await parseBg({ ...sctx, rels }, doc);
+    if (bg) { if (bg.color) json.background = bg.color; if (bg.image) json.backgroundImage = bg.image; break; }
+  }
+  const T0 = (x, y, w, h) => ({ x: x * ctx.S, y: y * ctx.S, w: w * ctx.S, h: h * ctx.S });
+  const objs = [];
+  const showM = attr(slide.documentElement, 'showMasterSp') !== '0';
+  const showLM = !layout || attr(layout.documentElement, 'showMasterSp') !== '0';
+  if (showM && showLM && master) await walkTree({ ...sctx, rels: mRels }, byTag(master, 'spTree')[0], T0, objs, true);
+  if (showM && layout) await walkTree({ ...sctx, rels: lRels }, byTag(layout, 'spTree')[0], T0, objs, true);
+  await walkTree(sctx, byTag(slide, 'spTree')[0], T0, objs, false);
+  json.objects = objs.map(o => o.toObject(PROPS));
+  return json;
+}
+async function parseBg(ctx, doc) {
+  const bg = byTag(doc, 'bg')[0]; if (!bg) return null;
+  const pr = child(bg, 'bgPr');
+  if (pr) {
+    if (child(pr, 'solidFill')) return { color: ctx.colorOf(child(pr, 'solidFill')) };
+    const gs = byTag(child(pr, 'gradFill'), 'gs')[0]; if (gs) return { color: ctx.colorOf(gs) };
+    const bf = child(pr, 'blipFill');
+    if (bf) {
+      const url = await mediaURL(ctx, ctx.rels, byTag(bf, 'blip')[0]);
+      if (url) { const img = await loadImage(url); img.set({ left: 0, top: 0, scaleX: ctx.w / img.width, scaleY: ctx.h / img.height }); return { image: img.toObject() }; }
+    }
+    return null;
+  }
+  const ref = child(bg, 'bgRef'); return ref ? { color: ctx.colorOf(ref) || '#ffffff' } : null;
+}
+async function walkTree(ctx, tree, T, objs, skipPh) {
+  if (!tree) return;
+  for (const el of tree.children) {
+    try {
+      const n = el.localName;
+      if (n === 'sp' || n === 'cxnSp') await parseSp(ctx, el, T, objs, skipPh);
+      else if (n === 'pic') { if (!(skipPh && phInfo(el))) await parsePic(ctx, el, T, objs); }
+      else if (n === 'grpSp') {
+        const x = xfrmOf(el); if (!x) { await walkTree(ctx, el, T, objs, skipPh); continue; }
+        const rx = x.chcx ? x.cx / x.chcx : 1, ry = x.chcy ? x.cy / x.chcy : 1;
+        await walkTree(ctx, el, (a, b, c, d) => T(x.x + (a - x.chx) * rx, x.y + (b - x.chy) * ry, c * rx, d * ry), objs, skipPh);
+      }
+      else if (n === 'graphicFrame') await parseFrame(ctx, el, T, objs);
+      else if (n === 'AlternateContent') await walkTree(ctx, child(el, 'Fallback'), T, objs, skipPh);
+    } catch (e) { console.warn('element skipped', e); }
+  }
+}
+async function parseSp(ctx, sp, T, objs, skipPh) {
+  const ph = phInfo(sp);
+  if (skipPh && ph) return;
+  const lsp = ph ? findPh(ctx.layout, ph) : null;
+  const effType = ph ? (ph.explicit ? ph.type : (lsp ? phInfo(lsp).type : 'body')) : null;
+  const msp = ph ? findPh(ctx.master, { type: effType, idx: null }) : null;
+  const inherit = [lsp, msp].filter(Boolean);
+  const x = xfrmOf(sp) || inherit.map(xfrmOf).find(Boolean);
+  if (!x) return;
+  const b = T(x.x, x.y, x.cx, x.cy);
+  const spPr = child(sp, 'spPr'), style = child(sp, 'style');
+  const geom = attr(child(spPr, 'prstGeom'), 'prst', 'rect');
+
+  let fill = null;
+  if (child(spPr, 'solidFill')) fill = ctx.colorOf(child(spPr, 'solidFill'));
+  else if (child(spPr, 'gradFill')) { const gs = byTag(child(spPr, 'gradFill'), 'gs')[0]; fill = gs && ctx.colorOf(gs); }
+  else if (!child(spPr, 'noFill') && !child(spPr, 'blipFill') && style) { const fr = child(style, 'fillRef'); if (fr && +attr(fr, 'idx', 0) > 0) fill = ctx.colorOf(fr); }
+  let stroke = null, sw = 0; const ln = child(spPr, 'ln');
+  if (ln && child(ln, 'solidFill')) { stroke = ctx.colorOf(child(ln, 'solidFill')); sw = Math.max(1, +attr(ln, 'w', 12700) * ctx.S); }
+  else if (!(ln && child(ln, 'noFill')) && style) { const lr = child(style, 'lnRef'); if (lr && +attr(lr, 'idx', 0) > 0) { stroke = ctx.colorOf(lr); sw = Math.max(1, +attr(ln, 'w', 9525) * ctx.S); } }
+
+  const bf = child(spPr, 'blipFill');
+  if (bf) {
+    const url = await mediaURL(ctx, ctx.rels, byTag(bf, 'blip')[0]);
+    if (url) { const img = await loadImage(url); img.set({ left: b.x, top: b.y, scaleX: b.w / img.width, scaleY: b.h / img.height }); if (x.rot) img.rotate(x.rot); objs.push(img); }
+  }
+  let shape = null;
+  const isLine = geom === 'line' || geom.startsWith('straightConnector') || sp.localName === 'cxnSp';
+  if (isLine) {
+    if (stroke) { let [x1, y1, x2, y2] = [b.x, b.y, b.x + b.w, b.y + b.h]; if (x.flipH) [x1, x2] = [x2, x1]; if (x.flipV) [y1, y2] = [y2, y1]; shape = new fabric.Line([x1, y1, x2, y2], { stroke, strokeWidth: sw }); }
+  } else if (fill || stroke) {
+    const common = { left: b.x, top: b.y, fill: fill || 'transparent', stroke, strokeWidth: stroke ? sw : 0, strokeUniform: true, flipX: x.flipH, flipY: x.flipV };
+    if (geom === 'ellipse') shape = new fabric.Ellipse({ ...common, rx: b.w / 2, ry: b.h / 2 });
+    else if (geom === 'triangle') shape = new fabric.Triangle({ ...common, width: b.w, height: b.h });
+    else if (geom === 'rtTriangle') shape = new fabric.Polygon([{ x: 0, y: 0 }, { x: 0, y: b.h }, { x: b.w, y: b.h }], common);
+    else if (geom === 'diamond') shape = new fabric.Polygon([{ x: b.w / 2, y: 0 }, { x: b.w, y: b.h / 2 }, { x: b.w / 2, y: b.h }, { x: 0, y: b.h / 2 }], common);
+    else if (geom === 'roundRect') { const r = Math.min(b.w, b.h) * 0.1667; shape = new fabric.Rect({ ...common, width: b.w, height: b.h, rx: r, ry: r }); }
+    else shape = new fabric.Rect({ ...common, width: b.w, height: b.h });
+  }
+  if (shape) { if (x.rot && !isLine) shape.rotate(x.rot); objs.push(shape); }
+
+  const tb = child(sp, 'txBody');
+  if (tb) {
+    const fr = child(style, 'fontRef');
+    const t = buildText(ctx, tb, inherit, effType, b, fr ? ctx.colorOf(fr) : null);
+    if (t) { if (x.rot) t.rotate(x.rot); objs.push(t); }
+  }
+}
+function buildText(ctx, txBody, inherit, phType, b, fontRefColor) {
+  const bodies = [txBody, ...inherit.map(s => child(s, 'txBody'))].filter(Boolean);
+  const bodyPrs = bodies.map(t => child(t, 'bodyPr')).filter(Boolean);
+  const lstStyles = bodies.map(t => child(t, 'lstStyle')).filter(Boolean);
+  const bp = k => { for (const e of bodyPrs) { const v = attr(e, k); if (v !== null) return v; } return null; };
+  const ins = (k, d) => +(bp(k) ?? d) * ctx.S;
+  const lI = ins('lIns', 91440), rI = ins('rIns', 91440), tI = ins('tIns', 45720), bI = ins('bIns', 45720);
+  const anchor = bp('anchor') || 't';
+  const naf = bodyPrs[0] ? child(bodyPrs[0], 'normAutofit') : null;
+  const fontScale = naf ? +attr(naf, 'fontScale', 100000) / 100000 : 1;
+  const isTitle = phType === 'title' || phType === 'ctrTitle';
+  const txStyles = ctx.master ? byTag(ctx.master, 'txStyles')[0] : null;
+  const mStyle = child(txStyles, isTitle ? 'titleStyle' : phType ? 'bodyStyle' : 'otherStyle');
+  const dk1 = '#' + (ctx.theme.colors.dk1 || '000000');
+
+  let text = '', styles = {}, line = 0, ch = 0, base = null, align = null, autoNum = 0;
+  const push = (str, st) => { for (const c of fabric.util.string.graphemeSplit(str)) { (styles[line] = styles[line] || {})[ch++] = st; text += c; } };
+  const newLine = () => { text += '\n'; line++; ch = 0; };
+
+  kids(txBody, 'p').forEach((p, pi) => {
+    if (pi > 0) newLine();
+    const pPr = child(p, 'pPr'), lvl = +attr(pPr, 'lvl', 0), name = `lvl${lvl + 1}pPr`;
+    const local = [pPr, ...lstStyles.map(ls => child(ls, name))].filter(Boolean);
+    const mLvl = child(mStyle, name);
+    const pAll = [...local, mLvl].filter(Boolean);
+    if (align === null) { for (const e of pAll) { const v = attr(e, 'algn'); if (v !== null) { align = v; break; } } }
+    const defsLocal = local.map(e => child(e, 'defRPr')).filter(Boolean);
+    const defMaster = child(mLvl, 'defRPr');
+    const runStyle = rPr => {
+      const all = [rPr, ...defsLocal, defMaster].filter(Boolean);
+      const ra = k => { for (const e of all) { const v = attr(e, k); if (v !== null) return v; } return null; };
+      const sub = (n, list = all) => { for (const e of list) { const c = child(e, n); if (c) return c; } return null; };
+      let font = attr(sub('latin'), 'typeface') || '';
+      if (font.startsWith('+mj')) font = ctx.theme.fonts.major;
+      else if (font.startsWith('+mn')) font = ctx.theme.fonts.minor;
+      else if (!font) font = isTitle ? ctx.theme.fonts.major : ctx.theme.fonts.minor;
+      const localFill = sub('solidFill', [rPr, ...defsLocal].filter(Boolean));
+      const masterFill = sub('solidFill', [defMaster].filter(Boolean));
+      return {
+        fontSize: (+(ra('sz') || 1800) / 100) * fontScale * EMU_PER_PT * ctx.S,
+        fontFamily: font || 'Sarabun',
+        fill: (localFill && ctx.colorOf(localFill)) || fontRefColor || (masterFill && ctx.colorOf(masterFill)) || dk1,
+        fontWeight: ['1', 'true'].includes(ra('b')) ? 'bold' : 'normal',
+        fontStyle: ['1', 'true'].includes(ra('i')) ? 'italic' : 'normal',
+        underline: !!ra('u') && ra('u') !== 'none',
+      };
+    };
+    const runs = [...p.children].filter(e => ['r', 'br', 'fld'].includes(e.localName));
+    const firstR = runs.find(r => r.localName !== 'br' && child(r, 't')?.textContent);
+    if (!firstR) return;
+    let bullet = '';
+    for (const e of pAll) {
+      if (child(e, 'buNone')) break;
+      const bc = child(e, 'buChar'); if (bc) { const c = attr(bc, 'char', '•'); bullet = (BULLETS.includes(c) ? c : '•') + ' '; break; }
+      if (child(e, 'buAutoNum')) { bullet = (++autoNum) + '. '; break; }
+    }
+    if (bullet) push('   '.repeat(lvl) + bullet, runStyle(child(firstR, 'rPr')));
+    for (const r of runs) {
+      if (r.localName === 'br') { newLine(); continue; }
+      const t = child(r, 't'); if (!t || !t.textContent) continue;
+      const st = runStyle(child(r, 'rPr')); base = base || st; push(t.textContent, st);
+    }
+  });
+  if (!text.trim() || !base) return null;
+  for (const l in styles) for (const c in styles[l]) {
+    const s = {}; for (const k in styles[l][c]) if (styles[l][c][k] !== base[k]) s[k] = styles[l][c][k];
+    if (Object.keys(s).length) styles[l][c] = s; else delete styles[l][c];
+  }
+  const tb = new fabric.Textbox(text, { left: b.x + lI, top: b.y + tI, width: Math.max(10, b.w - lI - rI), ...base, styles, textAlign: ALIGN[align] || 'left', splitByGrapheme: THAI.test(text) });
+  const innerH = b.h - tI - bI;
+  if (anchor === 'ctr') tb.set('top', b.y + tI + (innerH - tb.height) / 2);
+  else if (anchor === 'b') tb.set('top', b.y + b.h - bI - tb.height);
+  return tb;
+}
+async function parsePic(ctx, pic, T, objs) {
+  const x = xfrmOf(pic); if (!x) return;
+  const b = T(x.x, x.y, x.cx, x.cy), bf = child(pic, 'blipFill');
+  const url = await mediaURL(ctx, ctx.rels, byTag(bf, 'blip')[0]); if (!url) return;
+  const img = await loadImage(url);
+  const sr = byTag(bf, 'srcRect')[0];
+  if (sr) {
+    const g = k => Math.max(0, +attr(sr, k, 0) / 1e5), iw = img.width, ih = img.height;
+    img.set({ cropX: iw * g('l'), cropY: ih * g('t'), width: iw * (1 - g('l') - g('r')), height: ih * (1 - g('t') - g('b')) });
+  }
+  img.set({ left: b.x, top: b.y, scaleX: b.w / img.width, scaleY: b.h / img.height, flipX: x.flipH, flipY: x.flipV });
+  if (x.rot) img.rotate(x.rot);
+  objs.push(img);
+}
+async function parseFrame(ctx, gf, T, objs) {
+  const x = xfrmOf(gf); if (!x) return;
+  const b = T(x.x, x.y, x.cx, x.cy), tbl = byTag(gf, 'tbl')[0];
+  if (!tbl) {
+    objs.push(new fabric.Rect({ left: b.x, top: b.y, width: b.w, height: b.h, fill: 'rgba(125,42,232,0.05)', stroke: '#b9a3e8', strokeDashArray: [6, 4], strokeWidth: 1 }));
+    objs.push(new fabric.Textbox('[แผนภูมิ / SmartArt ยังไม่รองรับ]', { left: b.x + 10, top: b.y + 10, width: Math.max(60, b.w - 20), fontSize: 14, fill: '#7d2ae8', fontFamily: 'Sarabun', splitByGrapheme: true }));
+    return;
+  }
+  const cols = byTag(child(tbl, 'tblGrid'), 'gridCol').map(c => +attr(c, 'w', 0));
+  const k = b.w / (cols.reduce((a, c) => a + c, 0) || 1);
+  let y = b.y;
+  for (const tr of kids(tbl, 'tr')) {
+    const rh = +attr(tr, 'h', 370840) * k; let gi = 0, xx = b.x;
+    for (const tc of kids(tr, 'tc')) {
+      const span = +attr(tc, 'gridSpan', 1), rs = +attr(tc, 'rowSpan', 1);
+      const cw = cols.slice(gi, gi + span).reduce((a, c) => a + c, 0) * k;
+      if (attr(tc, 'hMerge') !== '1' && attr(tc, 'vMerge') !== '1') {
+        const fe = child(child(tc, 'tcPr'), 'solidFill');
+        objs.push(new fabric.Rect({ left: xx, top: y, width: cw, height: rh * rs, fill: fe ? ctx.colorOf(fe) : 'transparent', stroke: '#9aa0a6', strokeWidth: 1 }));
+        const txb = child(tc, 'txBody'), t = txb && buildText(ctx, txb, [], null, { x: xx, y, w: cw, h: rh * rs }, null);
+        if (t) objs.push(t);
+      }
+      xx += (cols[gi] || 0) * k; gi++;
+    }
+    y += rh;
+  }
+}
+
+/* ===================== IMPORT: PDF ===================== */
+async function renderPdfPage(page, vp, hideText) {
+  const c = document.createElement('canvas'); c.width = Math.ceil(vp.width); c.height = Math.ceil(vp.height);
+  const g = c.getContext('2d', { willReadFrequently: true });
+  g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height);
+  if (hideText) { g.fillText = () => {}; g.strokeText = () => {}; }
+  await page.render({ canvasContext: g, viewport: vp }).promise;
+  return c;
+}
+function mergePdfItems(items, vp) {
+  const out = [];
+  for (const it of items) {
+    if (!it.str) continue;
+    const tx = pdfjsLib.Util.transform(vp.transform, it.transform);
+    const fh = Math.hypot(tx[2], tx[3]); if (fh < 1) continue;
+    const x = tx[4], y = tx[5], w = it.width * vp.scale, angle = Math.atan2(tx[1], tx[0]) * 180 / Math.PI;
+    const last = out[out.length - 1];
+    const gap = last ? x - (last.x + last.w) : 0;
+    if (last && Math.abs(angle) < 1 && Math.abs(last.angle) < 1 && last.font === it.fontName &&
+        Math.abs(last.y - y) < fh * 0.3 && Math.abs(last.fh - fh) < fh * 0.2 && gap < fh * 1.2 && gap > -fh * 0.5) {
+      if (gap > fh * 0.2 && !last.str.endsWith(' ') && !it.str.startsWith(' ')) last.str += ' ';
+      last.str += it.str; last.w = x + w - last.x;
+    } else if (it.str.trim()) out.push({ str: it.str, x, y, w, fh, angle, font: it.fontName });
+  }
+  return out;
+}
+function sampleColor(A, B, cw, ch, x0, y0, w, h) {
+  let best = -1, col = [0, 0, 0];
+  const step = w * h > 200000 ? 2 : 1;
+  for (let y = Math.max(0, Math.floor(y0)); y < Math.min(ch, y0 + h); y += step)
+    for (let x = Math.max(0, Math.floor(x0)); x < Math.min(cw, x0 + w); x += step) {
+      const i = (y * cw + x) * 4;
+      const d = Math.abs(A[i] - B[i]) + Math.abs(A[i + 1] - B[i + 1]) + Math.abs(A[i + 2] - B[i + 2]);
+      if (d > best) { best = d; col = [A[i], A[i + 1], A[i + 2]]; }
+    }
+  return best > 30 ? `rgb(${col.join(',')})` : '#000000';
+}
+async function importPDF(buf, editable) {
+  try { await document.fonts.load('16px "Sarabun"'); } catch {}
+  const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(buf) }).promise;
+  const first = (await pdf.getPage(1)).getViewport({ scale: 1 });
+  const { w, h } = fitDims(first.width, first.height);   // ใช้สัดส่วนตามหน้าแรกของ PDF
+  const R = 2, out = [];
+  for (let n = 1; n <= pdf.numPages; n++) {
+    $('#loadingText').textContent = `กำลังอ่าน PDF หน้า ${n}/${pdf.numPages}`;
+    const page = await pdf.getPage(n);
+    const base = page.getViewport({ scale: 1 }), scale = Math.min(w / base.width, h / base.height);
+    const vp = page.getViewport({ scale }), vpHi = page.getViewport({ scale: scale * R });
+    const offX = (w - vp.width) / 2, offY = (h - vp.height) / 2;
+    const full = await renderPdfPage(page, vpHi, false);
+    let bgCanvas = full; const objs = [];
+    if (editable) {
+      const noText = await renderPdfPage(page, vpHi, true); bgCanvas = noText;
+      const tc = await page.getTextContent();
+      const A = full.getContext('2d').getImageData(0, 0, full.width, full.height).data;
+      const B = noText.getContext('2d').getImageData(0, 0, noText.width, noText.height).data;
+      for (const it of mergePdfItems(tc.items, vp)) {
+        const fam = (tc.styles[it.font] || {}).fontFamily || '';
+        let bold = false, italic = false;
+        try { const f = page.commonObjs.get(it.font); const nm = (f && (f.name || f.loadedName)) || ''; bold = /bold|black|heavy|semibold/i.test(nm); italic = /italic|oblique/i.test(nm); } catch {}
+        const fill = sampleColor(A, B, full.width, full.height, it.x * R, (it.y - it.fh) * R, it.w * R, it.fh * 1.25 * R);
+        const t = new fabric.IText(it.str, {
+          left: offX + it.x, top: offY + it.y - it.fh * 0.88, fontSize: it.fh, lineHeight: 1,
+          fontFamily: /serif/i.test(fam) && !/sans/i.test(fam) ? 'Times New Roman' : 'Sarabun',
+          fill, fontWeight: bold ? 'bold' : 'normal', fontStyle: italic ? 'italic' : 'normal',
+        });
+        if (t.width > 0 && it.w > 0) t.scaleX = Math.min(1.6, Math.max(0.6, it.w / t.width));
+        if (Math.abs(it.angle) >= 1) t.set('angle', it.angle);
+        objs.push(t);
+      }
+    }
+    const bgImg = await loadImage(bgCanvas.toDataURL('image/jpeg', 0.88));
+    bgImg.set({ left: offX, top: offY, scaleX: vp.width / bgImg.width, scaleY: vp.height / bgImg.height });
+    const json = blankJSON('#ffffff');
+    json.backgroundImage = bgImg.toObject();
+    json.objects = objs.map(o => o.toObject(PROPS));
+    out.push(json);
+    await sleep0();
+  }
+  return { W: w, H: h, slides: out };
+}
+
+/* ===================== OPEN / SAVE ===================== */
+async function openFile(f) {
+  const ext = f.name.split('.').pop().toLowerCase();
+  if (f.type.startsWith('image/')) return addImageFile(f);
+  if (['ppt', 'pps', 'odp'].includes(ext)) {
+    alert('ไฟล์ .' + ext + ' แบบเก่าเปิดในเบราว์เซอร์โดยตรงไม่ได้\nกรุณาเปิดใน PowerPoint / LibreOffice / Google Slides แล้ว Save As เป็น .pptx หรือ .pdf ก่อนครับ');
+    return;
+  }
+  try {
+    if (penOn) setPen(false);
+    showLoading('กำลังเปิด ' + f.name + ' ...');
+    let result;
+    if (ext === 'pptx' || ext === 'ppsx') result = await importPPTX(await f.arrayBuffer());
+    else if (ext === 'pdf') result = await importPDF(await f.arrayBuffer(), $('#pdfEditable').checked);
+    else if (ext === 'json') { const d = JSON.parse(await f.text()); result = { W: d.W || 960, H: d.H || 540, slides: d.slides }; }
+    else throw new Error('ไม่รองรับไฟล์ชนิดนี้');
+    await loadProject(result, f.name.replace(/\.[^.]+$/, ''));
+  } catch (err) { console.error(err); alert('เปิดไฟล์ไม่สำเร็จ: ' + err.message); }
+  finally { hideLoading(); }
+}
+async function loadProject({ W: w, H: h, slides: list }, title) {
+  setSize(w || 960, h || 540);
+  slides = (list && list.length ? list : [blankJSON()]).map(j => ({ json: j, thumb: '' }));
+  if (title) $('#docTitle').value = title;
+  for (let i = 0; i < slides.length; i++) {
+    $('#loadingText').textContent = `สร้างภาพตัวอย่าง ${i + 1}/${slides.length}`;
+    slides[i].thumb = await renderJSON(slides[i].json, 180 / Math.max(W, H), 'jpeg');
+  }
+  cur = 0; await gotoSlide(0, true);
+}
+async function saveProject() { await saveToBrowser(false); }
+function downloadProject() {
+  saveBlob(new Blob([JSON.stringify(projectData())], { type: 'application/json' }), docName() + '.json');
+}
+
+/* ===================== EXPORT ===================== */
+const PX2IN = 1 / 96;
+function hexA(c) { try { const col = new fabric.Color(c); return { color: col.toHex(), alpha: col.getAlpha() }; } catch { return { color: '000000', alpha: 1 }; } }
+function imgSrc(o) {
+  const el = o.getElement(), nw = el.naturalWidth || el.width, nh = el.naturalHeight || el.height;
+  const cropped = o.cropX || o.cropY || Math.round(o.width) !== nw || Math.round(o.height) !== nh;
+  const s = o.getSrc && o.getSrc();
+  if (!cropped && s && s.startsWith('data:')) return s;
+  const c = document.createElement('canvas'); c.width = o.width; c.height = o.height;
+  c.getContext('2d').drawImage(el, o.cropX || 0, o.cropY || 0, o.width, o.height, 0, 0, o.width, o.height);
+  return c.toDataURL('image/png');
+}
+function boxOf(o) {
+  const c = o.getCenterPoint(), w = o.getScaledWidth(), h = o.getScaledHeight();
+  return { x: (c.x - w / 2) * PX2IN, y: (c.y - h / 2) * PX2IN, w: w * PX2IN, h: h * PX2IN, rotate: o.angle || 0 };
+}
+function runOpts(o, st = {}) {
+  const g = k => st[k] !== undefined ? st[k] : o[k], fw = g('fontWeight');
+  const opt = { fontFace: g('fontFamily'), fontSize: Math.round(g('fontSize') * o.scaleY * 0.75 * 10) / 10, color: hexA(g('fill') || '#000').color,
+    bold: fw === 'bold' || +fw >= 600, italic: g('fontStyle') === 'italic' };
+  if (g('underline')) opt.underline = { style: 'sng' };
+  return opt;
+}
+function textRuns(o) {
+  const lines = o.text.split('\n'), runs = [];
+  lines.forEach((ln, li) => {
+    const start = runs.length; let buf = '', key = null, st = {};
+    const flush = () => { if (buf) runs.push({ text: buf, options: runOpts(o, st) }); buf = ''; };
+    fabric.util.string.graphemeSplit(ln).forEach((ch, ci) => {
+      const s = (o.styles && o.styles[li] && o.styles[li][ci]) || {}, k = JSON.stringify(s);
+      if (k !== key) { flush(); key = k; st = s; } buf += ch;
+    });
+    flush();
+    if (runs.length === start) runs.push({ text: ' ', options: runOpts(o) });
+    if (li < lines.length - 1) runs[runs.length - 1].options.breakLine = true;
+  });
+  return runs;
+}
+function objToPptx(pptx, s, o) {
+  if (o.visible === false) return;
+  const box = boxOf(o);
+  if (isText(o)) {
+    s.addText(textRuns(o), { ...box, valign: 'top', align: o.textAlign || 'left', margin: 0, fit: 'none',
+      wrap: o.type === 'textbox', lineSpacingMultiple: Math.round((o.lineHeight / 1.16) * 100) / 100 });
+    return;
+  }
+  const SHAPES = { rect: x => x.rx > 0 ? pptx.ShapeType.roundRect : pptx.ShapeType.rect, ellipse: () => pptx.ShapeType.ellipse, circle: () => pptx.ShapeType.ellipse, triangle: () => pptx.ShapeType.triangle };
+  if (SHAPES[o.type] && (!o.fill || typeof o.fill === 'string')) {
+    const opt = { ...box };
+    if (o.fill && o.fill !== 'transparent') { const f = hexA(o.fill); opt.fill = { color: f.color, transparency: Math.round((1 - f.alpha * o.opacity) * 100) }; }
+    else opt.fill = { type: 'none' };
+    if (o.stroke && o.strokeWidth) opt.line = { color: hexA(o.stroke).color, width: o.strokeWidth * 0.75 }; else opt.line = { type: 'none' };
+    s.addShape(SHAPES[o.type](o), opt); return;
+  }
+  if (o.type === 'image') { s.addImage({ data: imgSrc(o), ...box, flipH: !!o.flipX, flipV: !!o.flipY }); return; }
+  // ดาว, เส้น, เส้นที่วาดด้วยปากกา, กลุ่ม → ส่งออกเป็นรูปภาพ
+  const b = o.getBoundingRect(true, true);
+  s.addImage({ data: o.toDataURL({ format: 'png', multiplier: 2 }), x: b.left * PX2IN, y: b.top * PX2IN, w: b.width * PX2IN, h: b.height * PX2IN });
+}
+async function exportPPTX() {
+  const pptx = new PptxGenJS();
+  pptx.defineLayout({ name: 'SS', width: W * PX2IN, height: H * PX2IN }); pptx.layout = 'SS';
+  pptx.title = $('#docTitle').value;
+  for (let i = 0; i < slides.length; i++) {
+    $('#loadingText').textContent = `กำลังส่งออกสไลด์ ${i + 1}/${slides.length}`;
+    const s = pptx.addSlide();
+    await withStatic(slides[i].json, async sc => {
+      if (typeof sc.backgroundColor === 'string' && sc.backgroundColor) s.background = { color: hexA(sc.backgroundColor).color };
+      if (sc.backgroundImage) {
+        const bi = sc.backgroundImage, bb = bi.getBoundingRect(true, true);
+        s.addImage({ data: imgSrc(bi), x: bb.left * PX2IN, y: bb.top * PX2IN, w: bb.width * PX2IN, h: bb.height * PX2IN });
+      }
+      for (const o of sc.getObjects()) { try { objToPptx(pptx, s, o); } catch (e) { console.warn(e); } }
+    });
+  }
+  saveBlob(await pptx.write({ outputType: 'blob' }), docName() + '.pptx');
+}
+async function exportPDF() {
+  const { jsPDF } = window.jspdf, ori = W >= H ? 'landscape' : 'portrait';
+  const pdf = new jsPDF({ orientation: ori, unit: 'px', format: [W, H], hotfixes: ['px_scaling'] });
+  for (let i = 0; i < slides.length; i++) {
+    $('#loadingText').textContent = `กำลังสร้าง PDF หน้า ${i + 1}/${slides.length}`;
+    if (i) pdf.addPage([W, H], ori);
+    pdf.addImage(await renderJSON(slides[i].json, 2, 'jpeg'), 'JPEG', 0, 0, W, H);
+  }
+  saveBlob(pdf.output('blob'), docName() + '.pdf');
+}
+async function exportAs(kind) {
+  closeMenus();
+  saveCurrent(); canvas.discardActiveObject(); canvas.requestRenderAll(); updateProps();
+  try {
+    if (kind === 'json') return downloadProject();
+    if (kind === 'png') return download(canvas.toDataURL({ format: 'png', multiplier: 2 / zoom }), `${docName()}-slide${cur + 1}.png`);
+    showLoading('กำลังส่งออก...');
+    if (kind === 'pdf') await exportPDF(); else await exportPPTX();
+  } catch (err) { console.error(err); alert('ส่งออกไม่สำเร็จ: ' + (err.message || err)); }
+  finally { hideLoading(); }
+}
+
+/* ===================== PRESENT ===================== */
+let pIdx = 0, pImgs = [];
+async function present() {
+  if (penOn) setPen(false);
+  saveCurrent(); showLoading('กำลังเตรียมการนำเสนอ...');
+  pImgs = []; for (const s of slides) pImgs.push(await renderJSON(s.json, 2, 'jpeg'));
+  hideLoading(); pIdx = cur; $('#present').style.display = 'flex'; showP();
+  document.documentElement.requestFullscreen?.().catch(() => {});
+}
+function showP() { $('#presentImg').src = pImgs[pIdx]; $('#presentCounter').textContent = `${pIdx + 1} / ${pImgs.length}`; }
+function exitPresent() { $('#present').style.display = 'none'; if (document.fullscreenElement) document.exitFullscreen(); }
+function presentKey(e) {
+  if (['ArrowRight', 'ArrowDown', ' ', 'PageDown', 'Enter'].includes(e.key)) { pIdx = Math.min(pIdx + 1, pImgs.length - 1); showP(); }
+  else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(e.key)) { pIdx = Math.max(pIdx - 1, 0); showP(); }
+  else if (e.key === 'Escape') exitPresent();
+  e.preventDefault();
+}
+$('#present').onclick = () => { if (pIdx < pImgs.length - 1) { pIdx++; showP(); } else exitPresent(); };
+document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) $('#present').style.display = 'none'; });
+
+/* ===================== UI BINDINGS ===================== */
+const closeMenus = () => document.querySelectorAll('.dropdown.open').forEach(d => d.classList.remove('open'));
+document.addEventListener('click', closeMenus);
+
+document.querySelectorAll('[data-add]').forEach(b => b.onclick = () => addObj(ADD[b.dataset.add]()));
+$('#btnImage').onclick = () => $('#imgInput').click();
+$('#imgInput').onchange = e => { [...e.target.files].forEach(addImageFile); e.target.value = ''; };
+
+// QR Code
+$('#btnQR').onclick = () => { $('#qrModal').style.display = 'flex'; $('#qrInput').focus(); };
+$('#qrCancel').onclick = () => { $('#qrModal').style.display = 'none'; $('#qrInput').value = ''; };
+$('#qrSubmit').onclick = () => {
+  const val = $('#qrInput').value.trim();
+  if (val) { addQRCode(val); $('#qrModal').style.display = 'none'; $('#qrInput').value = ''; }
+};
+$('#qrInput').onkeydown = e => { if (e.key === 'Enter') $('#qrSubmit').click(); };
+
+// ขนาดสไลด์
+$('#btnSize').onclick = e => {
+  e.stopPropagation();
+  const dd = $('#sizeDD'), willOpen = !dd.classList.contains('open');
+  closeMenus();
+  if (willOpen) { $('#customW').value = W; $('#customH').value = H; dd.classList.add('open'); }
+};
+$('#sizeDD .menu').onclick = e => e.stopPropagation();
+document.querySelectorAll('[data-size]').forEach(b => b.onclick = () => {
+  const [w, h] = b.dataset.size.split('x').map(Number);
+  closeMenus(); resizeSlides(w, h);
+});
+$('#swapSize').onclick = () => { const w = $('#customW').value; $('#customW').value = $('#customH').value; $('#customH').value = w; };
+$('#applySize').onclick = () => { closeMenus(); resizeSlides(+$('#customW').value, +$('#customH').value); };
+['#customW', '#customH'].forEach(id => $(id).onkeydown = e => { if (e.key === 'Enter') $('#applySize').click(); });
+
+// ปากกา
+$('#btnPen').onclick = () => setPen(!penOn);
+$('#penColor').oninput = e => { if (!penOn) setPen(true); else canvas.freeDrawingBrush.color = e.target.value; };
+$('#penWidth').oninput = e => { if (!penOn) setPen(true); else canvas.freeDrawingBrush.width = Math.max(1, +e.target.value || 1); };
+
+// ซ่อน/แสดงแถบข้าง
+$('#toggleLeftBtn').onclick = () => {
+  const hidden = $('#slides').classList.toggle('hidden');
+  $('#toggleLeftBtn').textContent = hidden ? '▶' : '◀';
+  setTimeout(fitZoom, 220);
+};
+$('#toggleRightBtn').onclick = () => {
+  const hidden = $('#props').classList.toggle('hidden');
+  $('#toggleRightBtn').textContent = hidden ? '◀' : '▶';
+  setTimeout(fitZoom, 220);
+};
+
+$('#btnUndo').onclick = undo; $('#btnRedo').onclick = redo;
+$('#btnZoomIn').onclick = () => applyZoom(zoom * 1.15);
+$('#btnZoomOut').onclick = () => applyZoom(zoom / 1.15);
+$('#btnFit').onclick = fitZoom;
+$('#addSlide').onclick = addSlide;
+$('#btnNew').onclick = () => { if (confirm('สร้างงานใหม่? งานที่ยังไม่บันทึกจะหายไป')) loadProject({ W, H, slides: [blankJSON()] }, 'งานนำเสนอไม่มีชื่อ'); };
+$('#fileOpen').onchange = e => { const f = e.target.files[0]; if (f) openFile(f); e.target.value = ''; };
+$('#btnSave').onclick = saveProject;
+$('#btnPresent').onclick = present;
+$('#btnExport').onclick = e => {
+  e.stopPropagation();
+  const dd = $('#exportDD'), willOpen = !dd.classList.contains('open');
+  closeMenus(); if (willOpen) dd.classList.add('open');
+};
+document.querySelectorAll('[data-exp]').forEach(b => b.onclick = () => exportAs(b.dataset.exp));
+window.addEventListener('dragover', e => e.preventDefault());
+window.addEventListener('drop', e => { e.preventDefault(); [...(e.dataTransfer.files || [])].forEach(openFile); });
+
+document.addEventListener('keydown', e => {
+  if ($('#present').style.display === 'flex') return presentKey(e);
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); saveProject(); return; }
+  if (e.key === 'Escape') { closeMenus(); if (penOn) { setPen(false); return; } }
+  if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+  const o = canvas.getActiveObject(); if (o && o.isEditing) return;
+  const mod = e.ctrlKey || e.metaKey, k = e.key.toLowerCase();
+  if (mod && k === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); }
+  else if (mod && k === 'y') { e.preventDefault(); redo(); }
+  else if (mod && k === 'c') copy();
+  else if (mod && k === 'v') paste();
+  else if (mod && k === 'd') { e.preventDefault(); duplicate(); }
+  else if ((k === 'delete' || k === 'backspace') && o) { e.preventDefault(); deleteSelected(); }
+  else if (k.startsWith('arrow') && o) {
+    e.preventDefault(); const st = e.shiftKey ? 10 : 1;
+    o.set({ left: o.left + (k === 'arrowleft' ? -st : k === 'arrowright' ? st : 0), top: o.top + (k === 'arrowup' ? -st : k === 'arrowdown' ? st : 0) });
+    o.setCoords(); canvas.requestRenderAll(); commit();
+  }
+});
+
+/* ===================== INIT ===================== */
+(async function init() {
+  try { await Promise.all(['Sarabun', 'Prompt', 'Kanit', 'Noto Sans Thai'].map(f => document.fonts.load(`16px "${f}"`))); } catch {}
+  slides = [{ json: blankJSON(), thumb: '' }];
+  setSize(W, H); await gotoSlide(0, true); updateThumb();
+  document.fonts.ready.then(() => { fabric.util.clearFabricFontCache(); canvas.getObjects().forEach(o => o.initDimensions && o.initDimensions()); canvas.requestRenderAll(); });
+  $('#docTitle').addEventListener('input', () => { dirty = true; });
+
+  let inFrame = false; try { inFrame = window.self !== window.top; } catch { inFrame = true; }
+  if (inFrame) toast('แอปกำลังรันในหน้าพรีวิว/iframe ซึ่งมักบล็อกการดาวน์โหลด แนะนำให้เปิดไฟล์ .html ในเบราว์เซอร์โดยตรง', null, 15000);
+
+  try {
+    const saved = await idb('readonly', s => s.get('autosave'));
+    if (saved && saved.slides?.length &&
+        confirm(`พบงาน "${saved.title}" ที่บันทึกไว้เมื่อ ${new Date(saved.savedAt).toLocaleString('th-TH')}\nเปิดต่อไหม?`)) {
+      showLoading('กำลังเปิดงานที่บันทึกไว้...');
+      await loadProject(saved, saved.title);
+      hideLoading(); dirty = false;
+    }
+  } catch (e) { console.warn('ไม่สามารถใช้ autosave', e); }
+})();
+</script>
+</body>
+</html>
